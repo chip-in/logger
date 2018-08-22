@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '8'
+cache:
+  directories:
+  - node_modules
+deploy:
+  provider: npm
+  email: mioka.4774@gmail.com
+  skip_cleanup: true
+  api_key:
+    secure: "srtMRn5/Qqyy0WGwQtP7veZC0rnviXQ1I13lR4eabCGysaWupeBVP7wsCaGxhd+qCQS/5ANuAJTnM2+Up54//a9KlPfQPWVxN9Jyk3RAydDQ4su5kOTlyUXCg/EWkPjm6jVauZAfpb13P7p2A6wCgKXERrWPD5d5Ni9LleGS7FHoeAX9p6gJhTL3BFEqXBlnU3naIfTyeeIMpE6Pbw4EzHmPIwqC5MNUZ8xnI5ln6FIvsgyBm36KEGuohkki2iNAmDbj0eUaeQ40yilaD7NyI2yIbVwFNvnBqSjt4kAQzQ01DLrUlvT+4VgFnzkj00g6h8lgwQFyhfGeosXMd2+APc1zZW6W1/04EytqkawLyHweLLpPYSuCHCzC79IUhp/Nt8Ago232FF/2Y1eQ4mu4wWNU28M+EK97G6YELgvH+M5dXAHWiKL9z6Bv0hZM1qY4PMrDaCn+H7F/rzXKTch0lIOLPQq7GXXSZWsqV+DIO5IkLUeqS5ya8Ja8iIbm5i3QEyt2nynvtVP0LQ29R/bGnziUFYHY99hBjyR6hgYTXUqOOPqabUJMS95AcfBxAZITwHE3tVhfepajZk2nB8WMJzkcxJigCB8EzuwzGmSzo3Uvs6r5fKzGraJYv+VcTahzPEL/UtblgZMm3KcSVjMOEaGWhYXta5O1WvbZZ9TELJM="
+  on:
+    tags: true
+    repo: chip-in/logger
