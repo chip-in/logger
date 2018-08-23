@@ -1,6 +1,6 @@
 {
   "name": "@chip-in/logger",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "chip-in logger",
   "keywords": [
     "chip-in"
@@ -27,5 +27,8 @@
     "@chip-in/resource-node": "0.0.15",
     "config": "^1.30.0",
     "csv": "^3.0.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
