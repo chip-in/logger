@@ -19,6 +19,7 @@ const MESSAGES = {
   FAILED_CSV_LOGDATA:         {code: 16, msg: '[getCsvLog] Failed to getCsvLog. detail=%1'}, // %1:error
   SEND_DONE:                  {code: 17, msg: '[send] Succeeded to send. url=%1'},
   SEND_ERROR:                 {code: 18, msg: '[send] Failed to send. url=%1, error=%2'},
+  WRONG_VALUE_AND_CONTINUE:   {code: 19, msg: '[constructor] The "%1" value is incorrect or not specified. %1=%2. The "%1" is regarded as %3 and processing is continued.'},  // %1:ParameterName, %2:Defined value, %3: New value
 
   EOD: {code: -1, msg: 'End of data'}
 }

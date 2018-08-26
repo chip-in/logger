@@ -91,7 +91,7 @@ class Logger {
           ret = CONSTANTS.logLevelMap[logLevel];
         }
       }
-      this.logger.debug(MESSAGES.PASS.code, MESSAGES.PASS.msg, ['isLogLevel', 'ret', ret]);
+      this.logger.debug(MESSAGES.PASS.code, MESSAGES.PASS.msg, ['isLogLevel', 'ret', ret != null && ret.toString() || "null"]);
       return ret;
     }
 
@@ -104,12 +104,12 @@ class Logger {
     } else {
       this.logLevel = defaultValueLogLevel;
       this.logger.debug(MESSAGES.WRONG_VALUE_AND_CONTINUE.code, MESSAGES.WRONG_VALUE_AND_CONTINUE.msg,
-        ['setLogLevel', 'logLevel', logLevel && logLevel.toString() || "null", this.logLevel.toString()]);
+        ['setLogLevel', 'logLevel', logLevel != null && logLevel.toString() || "null", this.logLevel.toString()]);
     }
     // Update instances
     const instanceKeys = Object.keys(this.instanceMap);
     for (let i = 0; i < instanceKeys.length; i++) {
-      this.logger.debug(MESSAGES.PASS.code, MESSAGES.PASS.msg, ['setLogLevel(Update instances)', 'logLevel', this.logLevel]);
+      this.logger.debug(MESSAGES.PASS.code, MESSAGES.PASS.msg, ['setLogLevel(Update instances)', 'logLevel', this.logLevel.toString()]);
       this.instanceMap[instanceKeys[i]].setLogLevel(this.logLevel);
     }
     this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['setLogLevel']);
@@ -130,7 +130,7 @@ class Logger {
     } else {
       this.maxStringLength = defaultValueMaxStringLength;
       this.logger.debug(MESSAGES.WRONG_VALUE_AND_CONTINUE.code, MESSAGES.WRONG_VALUE_AND_CONTINUE.msg,
-        ['setMaxStringLength', 'maxStringLength', maxStringLength && maxStringLength.toString() || "null", this.maxStringLength.toString()]);
+        ['setMaxStringLength', 'maxStringLength', maxStringLength != null && maxStringLength.toString() || "null", this.maxStringLength.toString()]);
     }
     // Update instances
     const instanceKeys = Object.keys(this.instanceMap);

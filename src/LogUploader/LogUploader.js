@@ -29,11 +29,11 @@ class LogUploader extends ServiceEngine  {
     this.logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['LogUploader.constructor']);
     
     // LogUploader Configuration
-    this.logLevelFilter = this.config && this.config.uploaderParameters && this.config.uploaderParameters.logLevelFilter || defaultValueLogLevelFilter;
-    this.maxStringLength = this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxStringLength || defaultValueMaxStringLength;
-    this.maxBufferingSize = this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxBufferingSize || defaultValueMaxBufferingSize;
-    this.maxLatency = this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxLatency || defaultValueMaxLatency;
-    this.mergeThreshHold = this.config && this.config.uploaderParameters && this.config.uploaderParameters.mergeThreshHold || defaultValueMergeThreshHold;
+    this.logLevelFilter = this._setLogLevelFilter(this.config && this.config.uploaderParameters && this.config.uploaderParameters.logLevelFilter, defaultValueLogLevelFilter);
+    this.maxStringLength = this._setParameter("maxStringLength", this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxStringLength, defaultValueMaxStringLength, true);
+    this.maxBufferingSize = this._setParameter("maxBufferingSize", this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxBufferingSize, defaultValueMaxBufferingSize, false);
+    this.maxLatency = this._setParameter("maxLatency", this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxLatency, defaultValueMaxLatency, false);
+    this.mergeThreshHold = this._setParameter("mergeThreshHold", this.config && this.config.uploaderParameters && this.config.uploaderParameters.mergeThreshHold, defaultValueMergeThreshHold, true);
     
     this.sessionId = null;
     this.registeredMessages = {};
@@ -136,9 +136,12 @@ class LogUploader extends ServiceEngine  {
     
     // messages
     let doRegisterMessage = false;
-    if ((!this.registeredMessages[`${logObject.FQDN}:${logObject.code}:${logObject.language||"en-US"}`]) || 
-        (this.registeredMessages[`${logObject.FQDN}:${logObject.code}:${logObject.language||"en-US"}`] != logObject.message)) {
+    const msgTblKey = `${logObject.FQDN}:${logObject.code}:${logObject.language||"en-US"}`;
+    if ((!this.registeredMessages[msgTblKey]) || 
+        (this.registeredMessages[msgTblKey].message != logObject.message) ||
+        (this.registeredMessages[msgTblKey].status == "failed")) {
       doRegisterMessage = true;
+      this.registeredMessages[msgTblKey] = {message: logObject.message, status: "sending"};
     }
     if (doRegisterMessage) {
       const messageData = {
@@ -150,10 +153,16 @@ class LogUploader extends ServiceEngine  {
       // HTTP POST
       this._send('/l/messages', messageData)
       .then(ret => {
+        const key = `${messageData.FQDN}:${messageData.code}:${messageData.language||"en-US"}`;
         if (ret == 0) {
-          this.registeredMessages[`${messageData.FQDN}:${messageData.code}:${messageData.language||"en-US"}`] = messageData.message;
+          if (this.registeredMessages[key].message == messageData.message) {
+            this.registeredMessages[key].status = "done";
+          }
           this.logger.trace(MESSAGES.SEND_DONE_MESSAGE.code, MESSAGES.SEND_DONE_MESSAGE.msg);
         } else {
+          if (this.registeredMessages[key].message == messageData.message) {
+            this.registeredMessages[key].status = "failed";
+          }
           this.logger.debug(MESSAGES.SEND_ERROR_MESSAGE.code, MESSAGES.SEND_ERROR_MESSAGE.msg, [JSON.stringify(messageData)]);
           throw new LogUploaderException("FAILURE_REGISTER_MESSAGE");
         }
@@ -302,6 +311,9 @@ class LogUploader extends ServiceEngine  {
   
   _truncated(embeddedData) {
     let target = embeddedData;
+    if (target != null && target == "__Invalid_String__") {
+      return target;
+    }
     if (this.maxStringLength != 0 && target.length > this.maxStringLength) {
        const truncatedLength = target.length - this.maxStringLength;
        target = `${target.substr(0, this.maxStringLength)}..(${truncatedLength}char truncated)`;
@@ -400,6 +412,48 @@ class LogUploader extends ServiceEngine  {
         this.logger.error(MESSAGES.SEND_ERROR.code, MESSAGES.SEND_ERROR.msg, [url, e.toString()]);
         return -1;
       })
+  }
+  
+  /**
+   * @desc Checks and sets parameters.
+   * @param {String} name - Parameter name
+   * @param {Object} value - Parameter value
+   * @param {Number} defaultValue - Default value
+   * @param {boolean} isValidZero - Set to true if 0 has special meaning
+   * @return {Number} Returns parameter value
+   */
+  _setParameter(name, value, defaultValue, isValidZero) {
+    let targetValue = value;
+    
+    if (targetValue != null && !Number.isInteger(targetValue) && !Number.isNaN(Number(targetValue))) {
+      targetValue = Number(targetValue);
+    }
+    if (targetValue == null || !Number.isInteger(targetValue) || targetValue < 0 || (!isValidZero && targetValue == 0)) {
+      targetValue = defaultValue;
+      this.logger.debug(MESSAGES.WRONG_VALUE_AND_CONTINUE.code, MESSAGES.WRONG_VALUE_AND_CONTINUE.msg,
+        [name, value != null && value.toString() || "null", targetValue.toString()]);
+    }
+    return targetValue;
+  }
+  
+  /**
+   * @desc Checks and sets the logLevelFilter parameter.
+   * @param {Object} value - Parameter value
+   * @param {Number} defaultValue - Default value
+   * @return {Number} Returns parameter value
+   */
+  _setLogLevelFilter(value, defaultValue) {
+    let targetValue = value;
+    
+    if (targetValue != null && !Number.isInteger(targetValue) && !Number.isNaN(Number(targetValue))) {
+      targetValue = Number(targetValue);
+    }
+    if (targetValue == null || !Number.isInteger(targetValue) || targetValue < 1 || targetValue > 7) {
+      targetValue = defaultValue;
+      this.logger.debug(MESSAGES.WRONG_VALUE_AND_CONTINUE.code, MESSAGES.WRONG_VALUE_AND_CONTINUE.msg,
+        ['logLevelFilter', value != null && value.toString() || "null", targetValue.toString()]);
+    }
+    return targetValue;
   }
 }
 

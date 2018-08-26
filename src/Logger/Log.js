@@ -71,13 +71,15 @@ const logMessageFormat = function(msg) {
         }
       case 'd':
         index = x.substr(2,1) - 1;
-        return (args[2] && Array.isArray(args[2])  && index < args[2].length) ? Number(args[2][index]) : x;
+        return (args[2] && Array.isArray(args[2])  && index < args[2].length) ? (args[2][index] != null ? Number(args[2][index]) : null) : x;
       case 't':
         index = x.substr(2,1) - 1;
         let ret = x;
         if (args[3] && Array.isArray(args[3])  && index < args[3].length) {
           const time = new Date(args[3][index]);
-          if (isNaN(time)) {
+          if (args[3][index] == null || args[3][index] == "Invalid Date") {
+            ret = args[3][index];
+          } else if (isNaN(time)) {
             ret = "";
           } else {
             ret = toLocaleString(time)
@@ -207,7 +209,9 @@ class Log {
     // Check timeInserts parameter
     const isDatetimeFormat = (target) => {
       let newDateString = null;
-      if (target == null || typeof target !== 'string') {
+      if (target == null) {
+         newDateString = target;
+      } else if (typeof target !== 'string') {
          newDateString = "Invalid Date";
       } else {
         const time = Date.parse(target);

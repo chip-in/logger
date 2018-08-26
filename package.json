@@ -1,6 +1,6 @@
 {
   "name": "@chip-in/logger",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "chip-in logger",
   "keywords": [
     "chip-in"
