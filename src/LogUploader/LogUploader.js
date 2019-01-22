@@ -17,6 +17,7 @@ const defaultValueMaxStringLength = 1024;
 const defaultValueMaxBufferingSize = 10000;
 const defaultValueMaxLatency = 600;
 const defaultValueMergeThreshHold = 1000;
+const defaultValueDoFlashLevel = 1;
  
 class LogUploader extends ServiceEngine  {
   constructor(option) {
@@ -34,6 +35,7 @@ class LogUploader extends ServiceEngine  {
     this.maxBufferingSize = this._setParameter("maxBufferingSize", this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxBufferingSize, defaultValueMaxBufferingSize, false);
     this.maxLatency = this._setParameter("maxLatency", this.config && this.config.uploaderParameters && this.config.uploaderParameters.maxLatency, defaultValueMaxLatency, false);
     this.mergeThreshHold = this._setParameter("mergeThreshHold", this.config && this.config.uploaderParameters && this.config.uploaderParameters.mergeThreshHold, defaultValueMergeThreshHold, true);
+    this.doFlashLevel = this._setParameter("doFlashLevel", this.config && this.config.uploaderParameters && this.config.uploaderParameters.doFlashLevel, defaultValueDoFlashLevel, false);
     
     this.sessionId = null;
     this.registeredMessages = {};
@@ -57,6 +59,20 @@ class LogUploader extends ServiceEngine  {
   start(node) {
     this.node = node;
     return Promise.resolve()
+  }
+  
+  stop(node) {
+    if (this.doFlashLevel == 1) {
+      return this._doFlash(this._getFlashData())
+      .then(()=>{
+        this._clearWaiting();
+      })
+      .catch((e)=>{
+        this._clearWaiting();
+      })
+    }
+    this._clearWaiting();
+    return Promise.resolve();
   }
   
   /**
@@ -103,7 +119,7 @@ class LogUploader extends ServiceEngine  {
     if (typeof sessionId !== 'string') {
       return false;
     }
-    const decodeSessionid = window.atob(sessionId);
+    const decodeSessionid = atob(sessionId);
     if (!(/[0-9]{6}/.test(decodeSessionid))) {
       return false;
     }
@@ -176,7 +192,7 @@ class LogUploader extends ServiceEngine  {
         this._setWaiting();
       }
     } else {
-      this._doFlash();
+      this._doFlash(this._getFlashData());
     }
     this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['putLog']);
   }
@@ -188,7 +204,7 @@ class LogUploader extends ServiceEngine  {
     const startDate = new Date(this.unsentLogs[0].time);
     const now = new Date();
     const interval = this.maxLatency * 1000;
-    this.waitId = setTimeout(this._doFlash.bind(this), interval);
+    this.waitId = setTimeout(this._doFlash.bind(this, this._getFlashData()), interval);
   }
   
   /**
@@ -202,35 +218,49 @@ class LogUploader extends ServiceEngine  {
   }
   
   /**
-   * @desc aggregates and merges logs.
-   * @param {Object} logObject - A log Object
+   * @desc Create log data to be output.
+   * @return {Array} logObject
    */
-  _doFlash() {
-    this.logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['_doFlash']);
+  _getFlashData() {
     const targetLogs = _.cloneDeep(this.unsentLogs);
     this.unsentLogs = [];
     this._clearWaiting();
-    
-    this._merge(targetLogs)
-    .then(mergedLog => this._getCsvLog(mergedLog))
-    .then(compressedLog => {
-      const param = {
-        sessionId: this.sessionId,
-        csvLog: compressedLog
-      };
-      // HTTP POST
-      this._send('/l/logs', param)
-      .then(ret => {
-        if (ret == 0) {
-          this.logger.trace(MESSAGES.SEND_DONE_LOG.code, MESSAGES.SEND_DONE_LOG.msg);
-        } else {
-          this.logger.debug(MESSAGES.SEND_ERROR_LOG.code, MESSAGES.SEND_ERROR_LOG.msg, [param.sessionId]);
-          throw new LogUploaderException("FAILURE_REGISTER_LOG");
-        }
+    return targetLogs;
+  }
+  
+  /**
+   * @desc aggregates and merges logs.
+   * @param {Object} logObject - A log Object
+   * @return {Promise}
+   */
+  _doFlash(targetLogs) {
+    return Promise.resolve()
+    .then(()=>{
+      this.logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['_doFlash']);
+      
+      return this._merge(targetLogs)
+      .then(mergedLog => this._getCsvLog(mergedLog))
+      .then(compressedLog => {
+        const param = {
+          sessionId: this.sessionId,
+          csvLog: compressedLog
+        };
+        // HTTP POST
+        return this._send('/l/logs', param)
+        .then(ret => {
+          if (ret == 0) {
+            this.logger.trace(MESSAGES.SEND_DONE_LOG.code, MESSAGES.SEND_DONE_LOG.msg);
+          } else {
+            this.logger.debug(MESSAGES.SEND_ERROR_LOG.code, MESSAGES.SEND_ERROR_LOG.msg, [param.sessionId]);
+            throw new LogUploaderException("FAILURE_REGISTER_LOG");
+          }
+        });
+      })
+      .then(() => {
+        this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['_doFlash']);
+        return;
       });
     });
-    this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['_doFlash']);
-    return;
   }
   
   /**
@@ -455,6 +485,10 @@ class LogUploader extends ServiceEngine  {
     }
     return targetValue;
   }
+}
+
+function atob(str) {  
+  return new Buffer(str, 'base64').toString('binary');
 }
 
 export default LogUploader;

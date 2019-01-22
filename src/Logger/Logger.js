@@ -166,7 +166,7 @@ class Logger {
     if (seList.length == 1) {
       this.logUploader = seList[0];
       const sessionid = pad6(Math.floor(Math.random() * 1000000));
-      this.sessionid = window.btoa(sessionid);
+      this.sessionid = btoa(sessionid);
       this.logger.log(MESSAGES.ATTACH_UPLOADER.code, MESSAGES.ATTACH_UPLOADER.msg, [this.sessionid]);
       this.logUploader.registerSession(this.sessionid);
       
@@ -184,6 +184,18 @@ class Logger {
     return true;
   }
 }
+
+function btoa(str) {  
+  var buffer;
+  if (Buffer.isBuffer(str)) {
+    buffer = str;
+  }
+  else {
+    buffer = new Buffer(str.toString(), 'binary');
+  }
+
+  return buffer.toString('base64');
+};
 
 const logger = Logger._getLogger_internal(`${p.version}.Logger.logger.chip-in.net`, true);
 
