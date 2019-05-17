@@ -1,6 +1,6 @@
 {
   "name": "@chip-in/logger",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "chip-in logger",
   "keywords": [
     "chip-in"
@@ -24,7 +24,7 @@
     "del-cli": "^1.1.0"
   },
   "dependencies": {
-    "@chip-in/resource-node": "0.0.15",
+    "@chip-in/resource-node": "0.0.19",
     "config": "^1.30.0",
     "csv": "^3.0.2"
   },

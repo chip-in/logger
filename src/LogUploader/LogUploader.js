@@ -204,7 +204,10 @@ class LogUploader extends ServiceEngine  {
     const startDate = new Date(this.unsentLogs[0].time);
     const now = new Date();
     const interval = this.maxLatency * 1000;
-    this.waitId = setTimeout(this._doFlash.bind(this, this._getFlashData()), interval);
+    this.waitId = setTimeout(this._doFlashTimeout.bind(this), interval);
+  }
+  _doFlashTimeout() {
+    this._doFlash(this._getFlashData());
   }
   
   /**
