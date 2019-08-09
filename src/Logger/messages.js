@@ -10,7 +10,7 @@ const MESSAGES = {
   WRONG_VALUE_AND_CONTINUE:   {code:  6, msg: '[%1] The "%2" value is wrong. %2=%3. The "%2" is regarded as %4 and processing is continued.'},  // %1:MethodName, %2:ParameterName, %3:Defined value, %4: New value
   WRONG_RESOURCENODE:         {code:  7, msg: '[attachUploader] "resourceNode" isn\'t effective.'},
   SESSIONID_ALREADY_EXISTS:   {code:  8, msg: '[attachUploader] The sessionid is registered with LogUploader already. sessionid=%1'},
-  FAILURE_GET_SERVICE:        {code:  9, msg: '[attachUploader] Failed to get a service of LogUploader. It doesn\'t exist or, more than one. length=%d1'},
+  FAILURE_GET_SERVICE:        {code:  9, msg: '[attachUploader] Failed to get a service of LogUploader. It exists more than one. length=%d1'},
   ATTACH_UPLOADER:            {code: 10, msg: '[attachUploader] Attached LogUploader. sessionid=%1'},
   CREATED_NEW_INSTANCE:       {code: 11, msg: '[getLogger] Created a new instance. fqdn=%1, logLevel=%d1, maxStringLength=%d2, denyUpload=%2'},
   
@@ -25,6 +25,8 @@ const MESSAGES = {
   WRONG_LANGUAGE:             {code: 20, msg: '[checkParam] "language" parameter has to be a string.'},
   FAILURE_OUTPUT_LOG:         {code: 21, msg: '[%1] This log wasn\'t output, because there were several errors in a parameter check. parameters=%2'},  // %1:MethodName, %2:Parameters(JSON)
   SEND_LOG:                   {code: 22, msg: '[sendLogData] Sent a log to LogUploader.'},
+  
+  FAILURE_GET_SERVICE_NOTFOUND: {code: 23, msg: '[attachUploader] Failed to get a service of LogUploader. It doesn\'t exist. length=%d1'},
 
   EOD: {code: -1, msg: 'End of data'}
 }

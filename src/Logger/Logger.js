@@ -176,6 +176,9 @@ class Logger {
         this.logger.debug(MESSAGES.PASS.code, MESSAGES.PASS.msg, ['attachUploader(Update instances)', 'instanceKey(FQDN)', instanceKeys[i]]);
         this.instanceMap[instanceKeys[i]].logUploader = this.logUploader;
       }
+    } else if (seList.length == 0) {
+      this.logger.warn(MESSAGES.FAILURE_GET_SERVICE_NOTFOUND.code, MESSAGES.FAILURE_GET_SERVICE_NOTFOUND.msg, null, [seList.length]);
+      return false; // LogUploader doesn't exist
     } else {
       this.logger.error(MESSAGES.FAILURE_GET_SERVICE.code, MESSAGES.FAILURE_GET_SERVICE.msg, null, [seList.length]);
       throw new LoggerException("FAILURE_GET_SERVICE");
