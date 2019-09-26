@@ -1,7 +1,6 @@
 import MESSAGES from './messages';
 import * as CONSTANTS from './constants';
 import { logger } from './Logger';
-import p from '../../package';
 
 /**
  * @desc This function outputs a formatted log message to a console.
@@ -123,7 +122,7 @@ class Log {
     if (logger) {
       logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['Log constructor']);
     } else {
-      console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net START Log constructor`);
+      console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net START Log constructor`);
     }
     this.fqdn = fqdn;
     this.logUploader = logUploader;
@@ -133,7 +132,7 @@ class Log {
     if (logger) {
       logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['Log constructor']);
     } else {
-      console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net END Log constructor`);
+      console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net END Log constructor`);
     }
   }
   

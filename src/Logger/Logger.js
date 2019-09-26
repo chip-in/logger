@@ -2,7 +2,6 @@ import { Log, toLocaleString } from './Log';
 import MESSAGES from './messages';
 import * as CONSTANTS from './constants';
 import LoggerException from './LoggerException';
-import p from '../../package';
 
 /**
  * @desc Logger Class. This class supports the following functions.
@@ -48,13 +47,13 @@ class Logger {
     if (this.logger) {
       this.logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['getLogger']);
     } else {
-      console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net START getLogger`);
+      console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net START getLogger`);
     }
     if (fqdn == null) {
       if (this.logger) {
         this.logger.error(MESSAGES.PARAMETER_NOT_FOUND.code, MESSAGES.PARAMETER_NOT_FOUND.msg, ['getLogger', 'fqdn']);
       } else {
-        console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net [getLogger] The "fqdn" parameter is required.`);
+        console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net [getLogger] The "fqdn" parameter is required.`);
       }
       return null;
     }
@@ -63,14 +62,14 @@ class Logger {
       if (this.logger) {
         this.logger.info(MESSAGES.CREATED_NEW_INSTANCE.code, MESSAGES.CREATED_NEW_INSTANCE.msg, [fqdn, denyUpload.toString()], [this.logLevel, this.maxStringLength]);
       } else {
-        console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net [getLogger] Created a new instance. fqdn=${fqdn}, logLevel=${this.logLevel}, maxStringLength=${this.maxStringLength}, denyUpload=${denyUpload.toString()}`);
+        console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net [getLogger] Created a new instance. fqdn=${fqdn}, logLevel=${this.logLevel}, maxStringLength=${this.maxStringLength}, denyUpload=${denyUpload.toString()}`);
       }
       this.instanceMap[fqdn] = new Log(fqdn, this.logLevel, this.maxStringLength, this.logUploader, denyUpload);
     }
     if (this.logger) {
       this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['getLogger']);
     } else {
-      console.log(`${toLocaleString(new Date())} ${p.version}.local.Logger.chip-in.net END getLogger`);
+      console.log(`${toLocaleString(new Date())} local.Logger.chip-in.net END getLogger`);
     }
     return this.instanceMap[fqdn];
   }
@@ -200,6 +199,6 @@ function btoa(str) {
   return buffer.toString('base64');
 };
 
-const logger = Logger._getLogger_internal(`${p.version}.Logger.logger.chip-in.net`, true);
+const logger = Logger._getLogger_internal(`Logger.logger.chip-in.net`, true);
 
 export { Logger, logger };

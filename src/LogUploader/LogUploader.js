@@ -6,7 +6,6 @@ import * as csv from "csv";
 import assert from 'assert';
 import MESSAGES from './messages';
 import LogUploaderException from './LogUploaderException';
-import p from '../../package';
 
 /**
  * @class LogUploader
@@ -26,7 +25,7 @@ class LogUploader extends ServiceEngine  {
     this.config = option.metadata;
     
     // Logger Configuration
-    this.logger = Logger._getLogger_internal(`${p.version}.LogUploader.logger.chip-in.net`, true);
+    this.logger = Logger._getLogger_internal(`LogUploader.logger.chip-in.net`, true);
     this.logger.trace(MESSAGES.START_METHOD.code, MESSAGES.START_METHOD.msg, ['LogUploader.constructor']);
     
     // LogUploader Configuration
