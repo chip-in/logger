@@ -1,6 +1,6 @@
 {
   "name": "@chip-in/logger",
-  "version": "0.1.1",
+  "version": "0.1.2-rc179e6a03.1",
   "description": "chip-in logger",
   "keywords": [
     "chip-in"
@@ -10,6 +10,7 @@
   },
   "license": "MIT",
   "main": "lib/index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "cleanbuild": "npm run clean && npm run build",
     "build": "babel src -s inline -d lib/",
