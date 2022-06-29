@@ -1,6 +1,2 @@
-.github
 src
 .babelrc
-.release-it.json
-.release-it-prerelease.json
-.travis.yml
