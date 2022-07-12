@@ -18,5 +18,13 @@ export class Log {
   debug(code: number, message: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>, language?: string): void;
   trace(code: number, message: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>, language?: string): void;
 }
+export class LogUploader extends ServiceEngine {
+  constructor(option?: {})
+  start(node: ResourceNode): Promise<void>;
+  stop(node: ResourceNode): Promise<void>;
+  static registerServiceClasses(node: ResourceNode);
+  registerSession(sessionId: string);
+  putLog(logData: string)
+}
 
 type LogLevel = 'critical' | 'error' | 'warn' | 'log' | 'info'| 'debug' | 'trace'
