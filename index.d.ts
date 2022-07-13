@@ -1,4 +1,4 @@
-import { ResourceNode } from "@chip-in/resource-node";
+import { ResourceNode, ServiceEngine } from "@chip-in/resource-node";
 
 export class Logger {
   static getLogger(fqdn: string): Log;
