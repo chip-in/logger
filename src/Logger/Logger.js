@@ -198,19 +198,15 @@ class Logger {
    * 
    * @example
    * // exsample:
-   * const messageMap = {
-   *   msg: 'This is a sample log message. number=%d1 string=%1:%2 date=%t1',
-   *   inserts: ['XYZ', 'abc'],
-   *   numInserts: [123],
-   *   timeInserts: ['2022-07-25 11:21:12.859']
-   * }
-   * const embeddedMessage = Logger.format(messageMap);
+   * const inserts1 = 'XYZ';
+   * const inserts2 = 'abc';
+   * const timeInserts1 = '2022-07-25 11:21:12.859';
+   * const embeddedMessage = Logger.format('This is a sample message. number=%d1 string=%1:%2 date=%t1', [inserts1, inserts2], [123], [timeInserts1]);
    * console.log(embeddedMessage);
    * // result:
-   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
-   * 
+   * This is a sample message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
    */
-  static format({msg, inserts, numInserts, timeInserts}) {
+  static format(msg, inserts, numInserts, timeInserts) {
     let validateResult = {hasError: CONSTANTS.HASERROR_NONE, inserts, numInserts, timeInserts};
     checkCommonParameter(validateResult, msg, inserts, numInserts, timeInserts);
     if (validateResult.hasError == CONSTANTS.HASERROR_ERROR) {

@@ -1,12 +1,5 @@
 import { ResourceNode, ServiceEngine } from "@chip-in/resource-node";
 
-interface MessageMap {
-  msg: string;
-  inserts?: Array<string>;
-  numInserts?: Array<number>;
-  timeInserts?: Array<string>;
-}
-
 export class Logger {
   static getLogger(fqdn: string): Log;
   /**
@@ -18,18 +11,15 @@ export class Logger {
   /**
    * @example
    * // exsample:
-   * const messageMap = {
-   *   msg: 'This is a sample log message. number=%d1 string=%1:%2 date=%t1',
-   *   inserts: ['XYZ', 'abc'],
-   *   numInserts: [123],
-   *   timeInserts: ['2022-07-25 11:21:12.859']
-   * }
-   * const embeddedMessage = Logger.format(messageMap);
+   * const inserts1 = 'XYZ';
+   * const inserts2 = 'abc';
+   * const timeInserts1 = '2022-07-25 11:21:12.859';
+   * const embeddedMessage = Logger.format('This is a sample message. number=%d1 string=%1:%2 date=%t1', [inserts1, inserts2], [123], [timeInserts1]);
    * console.log(embeddedMessage);
    * // result:
-   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
+   * This is a sample message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
    */
-  static format(messageMap: MessageMap): string;
+  static format(msg: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>): string;
 }
 export class Log {
   critical(code: number, message: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>, language?: string): void;
