@@ -1,4 +1,4 @@
-import { Log, toLocaleString } from './Log';
+import { Log, toLocaleString, checkCommonParameter, logMessageFormat } from './Log';
 import MESSAGES from './messages';
 import * as CONSTANTS from './constants';
 import LoggerException from './LoggerException';
@@ -185,6 +185,45 @@ class Logger {
     this.logger.trace(MESSAGES.END_METHOD.code, MESSAGES.END_METHOD.msg, ['attachUploader']);
     return true;
   }
+
+  /**
+   * @desc This function sets pad characters in a message.
+   * 
+   * @param {String} msg - Target message
+   * @param {Array}  inserts - Array of embedded parameters for String. Maximum length is 4.
+   * @param {Array}  numInserts - Array of embedded parameters for Number. Maximum length is 4.
+   * @param {Array}  timeInserts - Array of embedded parameters for DateTime. Maximum length is 4.
+   * 
+   * @return {String} a string in the local time of this Date object.
+   * 
+   * @example
+   * // exsample:
+   * const messageMap = {
+   *   msg: 'This is a sample log message. number=%d1 string=%1:%2 date=%t1',
+   *   inserts: ['XYZ', 'abc'],
+   *   numInserts: [123],
+   *   timeInserts: ['2022/07/25']
+   * }
+   * const embeddedMessage = Logger.format(messageMap);
+   * console.log(embeddedMessage);
+   * // result:
+   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 00:00:00.000
+   * 
+   */
+  static format({msg, inserts, numInserts, timeInserts}) {
+    let validateResult = {hasError: CONSTANTS.HASERROR_NONE, inserts, numInserts, timeInserts};
+    checkCommonParameter(validateResult, msg, inserts, numInserts, timeInserts);
+    if (validateResult.hasError == CONSTANTS.HASERROR_ERROR) {
+      logger.debug(MESSAGES.FAILURE_FORMATTER.code, MESSAGES.FAILURE_FORMATTER.msg, [JSON.stringify({msg, inserts, numInserts, timeInserts})]);
+      return "Formatting failed, because there were several errors in a parameter check.";
+    }
+
+    const options = {
+      maxStringLength: this.maxStringLength
+    }  
+    const ret = logMessageFormat(msg, validateResult.inserts, validateResult.numInserts, validateResult.timeInserts, options);
+    return ret;
+  }
 }
 
 function btoa(str) {  
@@ -201,4 +240,4 @@ function btoa(str) {
 
 const logger = Logger._getLogger_internal(`Logger.logger.chip-in.net`, true);
 
-export { Logger, logger };
+export { Logger, logger, defaultValueMaxStringLength };

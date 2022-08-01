@@ -1,5 +1,12 @@
 import { ResourceNode, ServiceEngine } from "@chip-in/resource-node";
 
+interface MessageMap {
+  msg: string;
+  inserts?: Array<string>;
+  numInserts?: Array<number>;
+  timeInserts?: Array<string>;
+}
+
 export class Logger {
   static getLogger(fqdn: string): Log;
   /**
@@ -8,6 +15,21 @@ export class Logger {
   static setLogLevel(logLevel: number | LogLevel): void;
   static setMaxStringLength(maxStringLength: number): void;
   static attachUploader(resourceNode: ResourceNode): void;
+  /**
+   * @example
+   * // exsample:
+   * const messageMap = {
+   *   msg: 'This is a sample log message. number=%d1 string=%1:%2 date=%t1',
+   *   inserts: ['XYZ', 'abc'],
+   *   numInserts: [123],
+   *   timeInserts: ['2022/07/25']
+   * }
+   * const embeddedMessage = Logger.format(messageMap);
+   * console.log(embeddedMessage);
+   * // result:
+   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 00:00:00.000
+   */
+  static format(messageMap: MessageMap): string;
 }
 export class Log {
   critical(code: number, message: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>, language?: string): void;

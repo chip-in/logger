@@ -1,6 +1,6 @@
 import MESSAGES from './messages';
 import * as CONSTANTS from './constants';
-import { logger } from './Logger';
+import { logger, defaultValueMaxStringLength } from './Logger';
 
 /**
  * @desc This function outputs a formatted log message to a console.
@@ -34,6 +34,7 @@ const logging = function() {
  * @param {Array}  arguments[1] - inserts. Array of embedded parameters for String. Maximum length is 4.
  * @param {Array}  arguments[2] - numInserts. Array of embedded parameters for Number. Maximum length is 4.
  * @param {Array}  arguments[3] - timeInserts. Array of embedded parameters for DateTime. Maximum length is 4.
+ * @param {Object} arguments[4] - options 
  * @return {String}
  */
 const formatRegExp = /%([1234%]|[dt][1234])/g;
@@ -46,7 +47,7 @@ const logMessageFormat = function(msg) {
     return objects.join(' ');
   }
   
-  const maxStringLength = this.maxStringLength;
+  const maxStringLength = this? this.maxStringLength : (arguments[4]? arguments[4].maxStringLength: defaultValueMaxStringLength);
   const args = arguments;
   const str = String(msg).replace(formatRegExp, function(x) {
     if (x === '%%') return '%';
@@ -114,6 +115,100 @@ function toLocaleString(date) {
 }
 
 /**
+ * @desc This function checks whether these parameters are valid.
+ * 
+ * @param {Object} ret 
+ * @param {String} message     - Message
+ * @param {Array}  inserts     - Array of embedded parameters for String. Maximum length is 4.
+ * @param {Array}  numInserts  - Array of embedded parameters for Number. Maximum length is 4.
+ * @param {Array}  timeInserts -  Array of embedded parameters for DateTime. Maximum length is 4.
+ * @returns void
+ */
+const checkCommonParameter = function(ret, message, inserts, numInserts, timeInserts) {
+  // Check message parameter
+  if (!message) {
+    ret.hasError = CONSTANTS.HASERROR_ERROR;
+    logger.debug(MESSAGES.PARAMETER_NOT_FOUND.code, MESSAGES.PARAMETER_NOT_FOUND.msg, ['_checkParam', 'message']);
+  } else if (typeof message !== 'string') {
+    ret.hasError = CONSTANTS.HASERROR_ERROR;
+    logger.debug(MESSAGES.WRONG_MESSAGE.code, MESSAGES.WRONG_MESSAGE.msg);
+  }
+  
+  // Check inserts parameter
+  if (inserts != null){
+    if (Array.isArray(inserts)){
+      for (let i = 0; i < inserts.length; i++) {
+        const target = inserts[i];
+        if (typeof target !== 'string' && target !== null) {
+          ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+          ret.inserts[i] = "__Invalid_String__";
+          logger.debug(MESSAGES.WRONG_INSERTS_ELEMENT.code, MESSAGES.WRONG_INSERTS_ELEMENT.msg);
+        }
+      }
+    } else {
+      ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+      ret.inserts = ["__Invalid_String__"];
+      logger.debug(MESSAGES.WRONG_INSERTS.code, MESSAGES.WRONG_INSERTS.msg);
+    }
+  }
+  
+  // Check numInserts parameter
+  if (numInserts != null){
+    if (Array.isArray(numInserts)) {
+      for (let i = 0; i < numInserts.length; i++) {
+        const target = numInserts[i];
+        if (!(Number.isInteger(target)) && target !== null) {
+          ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+          ret.numInserts[i] = -2147483648;
+          logger.debug(MESSAGES.WRONG_NUM_INSERTS_ELEMENT.code, MESSAGES.WRONG_NUM_INSERTS_ELEMENT.msg);
+        }
+      }
+    } else {
+      ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+      ret.numInserts = [-2147483648];
+      logger.debug(MESSAGES.WRONG_NUM_INSERTS.code, MESSAGES.WRONG_NUM_INSERTS.msg);
+    }
+  }
+  
+  // Check timeInserts parameter
+  const isDatetimeFormat = (target) => {
+    let newDateString = null;
+    if (target == null) {
+       newDateString = target;
+    } else if (typeof target !== 'string') {
+       newDateString = "Invalid Date";
+    } else {
+      const time = Date.parse(target);
+      if (isNaN(time)) {
+         newDateString = "Invalid Date";
+      } else {
+         const dateObj = new Date(target);
+         newDateString = dateObj.toISOString();
+      }
+    }
+    return newDateString;
+  }
+  if (timeInserts != null){
+    if (Array.isArray(timeInserts)) {
+      for (let i = 0; i < timeInserts.length; i++) {
+        const target = timeInserts[i];
+        const newDateString = isDatetimeFormat(target);
+        ret.timeInserts[i] = newDateString;
+        if (newDateString == "Invalid Date") {
+          ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+          logger.debug(MESSAGES.WRONG_DATE_INSERTS_ELEMENT.code, MESSAGES.WRONG_DATE_INSERTS_ELEMENT.msg);
+        }
+      }
+    } else {
+      ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
+      ret.timeInserts = ["Invalid Date"];
+      logger.debug(MESSAGES.WRONG_DATE_INSERTS.code, MESSAGES.WRONG_DATE_INSERTS.msg);
+    }
+  }
+  return;
+}
+
+/**
  * @desc Log Class. 
  * @class
  */
@@ -159,87 +254,8 @@ class Log {
       ret.hasError = CONSTANTS.HASERROR_ERROR;
       logger.debug(MESSAGES.WRONG_CODE.code, MESSAGES.WRONG_CODE.msg);
     }
-    
-    // Check message parameter
-    if (!message) {
-      ret.hasError = CONSTANTS.HASERROR_ERROR;
-      logger.debug(MESSAGES.PARAMETER_NOT_FOUND.code, MESSAGES.PARAMETER_NOT_FOUND.msg, ['_checkParam', 'message']);
-    } else if (typeof message !== 'string') {
-      ret.hasError = CONSTANTS.HASERROR_ERROR;
-      logger.debug(MESSAGES.WRONG_MESSAGE.code, MESSAGES.WRONG_MESSAGE.msg);
-    }
-    
-    // Check inserts parameter
-    if (inserts != null){
-      if (Array.isArray(inserts)){
-        for (let i = 0; i < inserts.length; i++) {
-          const target = inserts[i];
-          if (typeof target !== 'string' && target !== null) {
-            ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-            ret.inserts[i] = "__Invalid_String__";
-            logger.debug(MESSAGES.WRONG_INSERTS_ELEMENT.code, MESSAGES.WRONG_INSERTS_ELEMENT.msg);
-          }
-        }
-      } else {
-        ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-        ret.inserts = ["__Invalid_String__"];
-        logger.debug(MESSAGES.WRONG_INSERTS.code, MESSAGES.WRONG_INSERTS.msg);
-      }
-    }
-    
-    // Check numInserts parameter
-    if (numInserts != null){
-      if (Array.isArray(numInserts)) {
-        for (let i = 0; i < numInserts.length; i++) {
-          const target = numInserts[i];
-          if (!(Number.isInteger(target)) && target !== null) {
-            ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-            ret.numInserts[i] = -2147483648;
-            logger.debug(MESSAGES.WRONG_NUM_INSERTS_ELEMENT.code, MESSAGES.WRONG_NUM_INSERTS_ELEMENT.msg);
-          }
-        }
-      } else {
-        ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-        ret.numInserts = [-2147483648];
-        logger.debug(MESSAGES.WRONG_NUM_INSERTS.code, MESSAGES.WRONG_NUM_INSERTS.msg);
-      }
-    }
-    
-    // Check timeInserts parameter
-    const isDatetimeFormat = (target) => {
-      let newDateString = null;
-      if (target == null) {
-         newDateString = target;
-      } else if (typeof target !== 'string') {
-         newDateString = "Invalid Date";
-      } else {
-        const time = Date.parse(target);
-        if (isNaN(time)) {
-           newDateString = "Invalid Date";
-        } else {
-           const dateObj = new Date(target);
-           newDateString = dateObj.toISOString();
-        }
-      }
-      return newDateString;
-    }
-    if (timeInserts != null){
-      if (Array.isArray(timeInserts)) {
-        for (let i = 0; i < timeInserts.length; i++) {
-          const target = timeInserts[i];
-          const newDateString = isDatetimeFormat(target);
-          ret.timeInserts[i] = newDateString;
-          if (newDateString == "Invalid Date") {
-            ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-            logger.debug(MESSAGES.WRONG_DATE_INSERTS_ELEMENT.code, MESSAGES.WRONG_DATE_INSERTS_ELEMENT.msg);
-          }
-        }
-      } else {
-        ret.hasError = (ret.hasError < CONSTANTS.HASERROR_WARN) ? CONSTANTS.HASERROR_WARN : ret.hasError;
-        ret.timeInserts = ["Invalid Date"];
-        logger.debug(MESSAGES.WRONG_DATE_INSERTS.code, MESSAGES.WRONG_DATE_INSERTS.msg);
-      }
-    }
+
+    checkCommonParameter(ret, message, inserts, numInserts, timeInserts);
 
     // Check language parameter
     if (language != null && typeof language !== 'string') {
@@ -368,4 +384,4 @@ class Log {
   }
 }
 
-export { Log, toLocaleString };
+export { Log, toLocaleString, checkCommonParameter, logMessageFormat };

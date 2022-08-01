@@ -27,6 +27,7 @@ const MESSAGES = {
   SEND_LOG:                   {code: 22, msg: '[sendLogData] Sent a log to LogUploader.'},
   
   FAILURE_GET_SERVICE_NOTFOUND: {code: 23, msg: '[attachUploader] Failed to get a service of LogUploader. It doesn\'t exist. length=%d1'},
+  FAILURE_FORMATTER:          {code: 24, msg: '[format] Formatting failed, because there were several errors in a parameter check. parameters=%1'},  // %1:Parameters(JSON)
 
   EOD: {code: -1, msg: 'End of data'}
 }
