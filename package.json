@@ -1,6 +1,6 @@
 {
   "name": "@chip-in/logger",
-  "version": "0.1.4",
+  "version": "0.1.5-rcab9e50a0.0",
   "description": "chip-in logger",
   "keywords": [
     "chip-in"
