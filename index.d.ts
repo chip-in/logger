@@ -22,12 +22,12 @@ export class Logger {
    *   msg: 'This is a sample log message. number=%d1 string=%1:%2 date=%t1',
    *   inserts: ['XYZ', 'abc'],
    *   numInserts: [123],
-   *   timeInserts: ['2022/07/25']
+   *   timeInserts: ['2022-07-25 11:21:12.859']
    * }
    * const embeddedMessage = Logger.format(messageMap);
    * console.log(embeddedMessage);
    * // result:
-   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 00:00:00.000
+   * This is a sample log message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
    */
   static format(messageMap: MessageMap): string;
 }
