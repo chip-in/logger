@@ -8,6 +8,18 @@ export class Logger {
   static setLogLevel(logLevel: number | LogLevel): void;
   static setMaxStringLength(maxStringLength: number): void;
   static attachUploader(resourceNode: ResourceNode): void;
+  /**
+   * @example
+   * // exsample:
+   * const inserts1 = 'XYZ';
+   * const inserts2 = 'abc';
+   * const timeInserts1 = '2022-07-25 11:21:12.859';
+   * const embeddedMessage = Logger.format('This is a sample message. number=%d1 string=%1:%2 date=%t1', [inserts1, inserts2], [123], [timeInserts1]);
+   * console.log(embeddedMessage);
+   * // result:
+   * This is a sample message. number=123 string=XYZ:abc date=2022-07-25 11:21:12.859
+   */
+  static format(msg: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>): string;
 }
 export class Log {
   critical(code: number, message: string, inserts?: Array<string>, numInserts?: Array<number>, timeInserts?: Array<string>, language?: string): void;
